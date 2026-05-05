@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -425,7 +425,7 @@
     <iframe
       class="content-frame"
       id="siteFrame"
-      src="https://yunday-portail.lovable.app/"
+      src=""
       title="Yunday Portail"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
     ></iframe>
@@ -461,6 +461,16 @@
 </div>
 
 <script>
+  // Force fresh load avec cache-busting
+  const BASE_URL = 'https://yunday-portail.lovable.app/';
+  function loadFresh() {
+    const url = BASE_URL + '?_=' + Date.now();
+    document.getElementById('siteFrame').src = url;
+    document.getElementById('urlBar').value = BASE_URL;
+  }
+  window.addEventListener('load', loadFresh);
+  document.querySelectorAll('.nav-btn')[2].addEventListener('click', loadFresh);
+
   // Clock
   function updateClock() {
     const now = new Date();
@@ -477,8 +487,7 @@
 
   // Navigate
   function navigate() {
-    const url = document.getElementById('urlBar').value;
-    document.getElementById('siteFrame').src = url;
+    loadFresh();
   }
 
   // Draggable window
