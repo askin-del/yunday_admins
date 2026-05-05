@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yunday Portail - Windows 7</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 13px;
+      background: #1e3a5a;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* === DESKTOP BACKGROUND === */
+    .desktop {
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(ellipse at 30% 60%, rgba(100,160,220,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 30%, rgba(60,120,200,0.25) 0%, transparent 50%),
+        linear-gradient(180deg, #1a4a7a 0%, #0d2a4a 40%, #071a30 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* === TASKBAR === */
+    .taskbar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 40px;
+      background: linear-gradient(180deg, #4a7ab5 0%, #2a5490 30%, #1e3d70 60%, #1a3560 100%);
+      border-top: 1px solid #7ab0e0;
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+    }
+
+    .taskbar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    }
+
+    /* Start Button */
+    .start-btn {
+      height: 100%;
+      padding: 0 18px 0 12px;
+      background: linear-gradient(180deg, #78b840 0%, #4e9a18 40%, #3a7a10 100%);
+      border: none;
+      border-right: 1px solid #2a6010;
+      color: white;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .start-btn:hover {
+      background: linear-gradient(180deg, #90d050 0%, #60b020 40%, #4a9018 100%);
+    }
+
+    .start-orb {
+      width: 20px; height: 20px;
+      background: radial-gradient(circle at 40% 35%, #a0e060, #60b020);
+      border-radius: 50%;
+      border: 1px solid #2a6010;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    /* Taskbar items */
+    .taskbar-items {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 4px;
+      gap: 2px;
+    }
+
+    .taskbar-item {
+      height: 32px;
+      padding: 0 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.1) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 3px;
+      color: white;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .taskbar-item.active {
+      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(255,255,255,0.1) 100%);
+      border-color: rgba(100,160,255,0.5);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Clock */
+    .taskbar-clock {
+      padding: 0 12px;
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      line-height: 1.3;
+      cursor: pointer;
+    }
+
+    .taskbar-clock .time { font-weight: 600; font-size: 13px; }
+
+    /* Show desktop */
+    .show-desktop {
+      width: 8px;
+      height: 100%;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      background: rgba(255,255,255,0.05);
+    }
+    .show-desktop:hover { background: rgba(255,255,255,0.15); }
+
+    /* === WINDOW === */
+    .window {
+      position: absolute;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      width: calc(100vw - 20px);
+      height: calc(100vh - 60px);
+      background: #fff;
+      border: 1px solid #2a5490;
+      border-radius: 8px 8px 4px 4px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.3),
+        0 8px 40px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: windowOpen 0.2s ease-out;
+    }
+
+    @keyframes windowOpen {
+      from { transform: translateX(-50%) scale(0.95); opacity: 0.5; }
+      to { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    /* Title bar */
+    .title-bar {
+      height: 30px;
+      background: linear-gradient(180deg,
+        #5a9de8 0%, #4080d0 15%, #2c6abf 60%, #1e55a8 100%);
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      gap: 6px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .title-bar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+      border-radius: 8px 8px 0 0;
+      pointer-events: none;
+    }
+
+    .title-bar-icon {
+      width: 16px; height: 16px;
+      background: radial-gradient(circle at 35% 35%, #80c0ff, #2060c0);
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .title-bar-text {
+      flex: 1;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Window control buttons */
+    .win-controls {
+      display: flex;
+      gap: 2px;
+      height: 22px;
+    }
+
+    .win-btn {
+      width: 28px; height: 22px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: white;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .win-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+    }
+
+    .win-btn-min { background: linear-gradient(180deg, #6aa8e0, #4080c0); }
+    .win-btn-max { background: linear-gradient(180deg, #6aa8e0, #4080c0); }
+    .win-btn-close { background: linear-gradient(180deg, #e07060, #c03020); }
+
+    .win-btn-min:hover { background: linear-gradient(180deg, #80c0f0, #50a0e0); }
+    .win-btn-max:hover { background: linear-gradient(180deg, #80c0f0, #50a0e0); }
+    .win-btn-close:hover { background: linear-gradient(180deg, #f08070, #e04030); }
+
+    /* Menu bar */
+    .menu-bar {
+      height: 24px;
+      background: linear-gradient(180deg, #f5f5f5, #e8e8e8);
+      border-bottom: 1px solid #c0c0c0;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .menu-item {
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #222;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .menu-item:hover { background: #d0e4f8; color: #000; }
+
+    /* Address bar */
+    .address-bar {
+      height: 34px;
+      background: linear-gradient(180deg, #e8e8e8, #f0f0f0);
+      border-bottom: 1px solid #c0c0c0;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      width: 24px; height: 24px;
+      background: linear-gradient(180deg, #f8f8f8, #e0e0e0);
+      border: 1px solid #a0a0a0;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: #444;
+    }
+    .nav-btn:hover { background: linear-gradient(180deg, #d0e8ff, #a8ccf0); border-color: #6090c0; }
+    .nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .address-input {
+      flex: 1;
+      height: 22px;
+      border: 1px solid #7090b0;
+      border-radius: 2px;
+      padding: 0 6px;
+      font-family: inherit;
+      font-size: 12px;
+      background: white;
+      color: #222;
+      outline: none;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .address-input:focus { border-color: #4080c0; box-shadow: inset 0 1px 3px rgba(0,80,200,0.2); }
+
+    .go-btn {
+      height: 22px;
+      padding: 0 8px;
+      background: linear-gradient(180deg, #78b840, #4e9a18);
+      border: 1px solid #2a6010;
+      border-radius: 2px;
+      color: white;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .go-btn:hover { background: linear-gradient(180deg, #90d050, #60b020); }
+
+    /* Content frame */
+    .content-frame {
+      flex: 1;
+      border: none;
+      background: white;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 22px;
+      background: linear-gradient(180deg, #e8e8e8, #d8d8d8);
+      border-top: 1px solid #b8b8b8;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+      font-size: 11px;
+      color: #444;
+      flex-shrink: 0;
+    }
+
+    .status-sep {
+      width: 1px; height: 14px;
+      background: #b0b0b0;
+    }
+
+    /* Resize grip */
+    .resize-grip {
+      position: absolute;
+      bottom: 22px; right: 0;
+      width: 16px; height: 16px;
+      cursor: se-resize;
+      opacity: 0.4;
+    }
+
+    /* Desktop icons */
+    .desktop-icon {
+      position: absolute;
+      top: 30px; left: 20px;
+      width: 70px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    .desktop-icon:hover { background: rgba(100,160,255,0.2); }
+    .desktop-icon .icon-img {
+      width: 40px; height: 40px;
+      background: radial-gradient(circle at 35% 30%, #80c8ff, #2070d0);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .desktop-icon .icon-label {
+      color: white;
+      font-size: 11px;
+      text-align: center;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+<div class="desktop">
+
+  <!-- Desktop icon -->
+  <div class="desktop-icon" onclick="document.querySelector('.content-frame').src='https://yunday-portail.lovable.app/'">
+    <div class="icon-img"></div>
+    <div class="icon-label">Yunday Portail</div>
+  </div>
+
+  <!-- Window -->
+  <div class="window" id="mainWindow">
+    <div class="title-bar" id="titleBar">
+      <div class="title-bar-icon"></div>
+      <div class="title-bar-text">Yunday Portail — Windows Internet Explorer</div>
+      <div class="win-controls">
+        <div class="win-btn win-btn-min" title="Réduire">&#8212;</div>
+        <div class="win-btn win-btn-max" title="Agrandir">&#9633;</div>
+        <div class="win-btn win-btn-close" title="Fermer" onclick="document.getElementById('mainWindow').style.display='none'">&#10005;</div>
+      </div>
+    </div>
+
+    <div class="menu-bar">
+      <div class="menu-item">Fichier</div>
+      <div class="menu-item">Edition</div>
+      <div class="menu-item">Affichage</div>
+      <div class="menu-item">Favoris</div>
+      <div class="menu-item">Outils</div>
+      <div class="menu-item">?</div>
+    </div>
+
+    <div class="address-bar">
+      <button class="nav-btn" title="Précédent">&#8592;</button>
+      <button class="nav-btn" title="Suivant">&#8594;</button>
+      <button class="nav-btn" title="Actualiser">&#8635;</button>
+      <button class="nav-btn" title="Arrêter">&#10005;</button>
+      <input class="address-input" id="urlBar" type="text" value="https://yunday-portail.lovable.app/" readonly />
+      <button class="go-btn" onclick="navigate()">Atteindre</button>
+    </div>
+
+    <iframe
+      class="content-frame"
+      id="siteFrame"
+      src="https://yunday-portail.lovable.app/"
+      title="Yunday Portail"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    ></iframe>
+
+    <div class="status-bar">
+      <span>&#10003; Terminé</span>
+      <div class="status-sep"></div>
+      <span>Internet</span>
+      <div class="status-sep"></div>
+      <span>Mode protégé : activé</span>
+    </div>
+  </div>
+
+  <!-- Taskbar -->
+  <div class="taskbar">
+    <button class="start-btn">
+      <div class="start-orb"></div>
+      Démarrer
+    </button>
+    <div class="taskbar-items">
+      <div class="taskbar-item active">
+        <span>&#127760;</span>
+        Yunday Portail
+      </div>
+    </div>
+    <div class="taskbar-clock" id="clock">
+      <div class="time" id="clockTime">--:--</div>
+      <div id="clockDate">--/--/----</div>
+    </div>
+    <div class="show-desktop" title="Afficher le bureau"></div>
+  </div>
+
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const mo = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    document.getElementById('clockTime').textContent = `${h}:${m}`;
+    document.getElementById('clockDate').textContent = `${d}/${mo}/${y}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Navigate
+  function navigate() {
+    const url = document.getElementById('urlBar').value;
+    document.getElementById('siteFrame').src = url;
+  }
+
+  // Draggable window
+  const win = document.getElementById('mainWindow');
+  const titleBar = document.getElementById('titleBar');
+  let dragging = false, ox = 0, oy = 0;
+
+  titleBar.addEventListener('mousedown', e => {
+    dragging = true;
+    ox = e.clientX - win.offsetLeft;
+    oy = e.clientY - win.offsetTop;
+    win.style.transform = 'none';
+    win.style.left = (window.innerWidth / 2 - win.offsetWidth / 2) + 'px';
+    win.style.top = '20px';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    win.style.left = (e.clientX - ox) + 'px';
+    win.style.top = (e.clientY - oy) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => { dragging = false; });
+</script>
+</body>
+</html>
